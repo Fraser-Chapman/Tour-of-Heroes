@@ -64,6 +64,18 @@ export class HeroService {
     this.messageService.add(`Hero Service: ${message}`);
   }
 
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      return of([]);
+    }
+
+    return this.http.get<Hero[]>(`${HeroService.heroesUrl}/?name=${term}`)
+      .pipe(
+        tap(_ => this.log(`Found heroes matching: ${term}`)),
+        catchError(this.handleError<Hero[]>(`searchHero term = ${term}`, []))
+      );
+  }
+
 /**
  * Handle Http operation that failed.
  * Let the app continue.
