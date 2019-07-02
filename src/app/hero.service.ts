@@ -5,13 +5,15 @@ import { MessageService } from './message.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 
+const httpOptions = {
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class HeroService {
   private static heroesUrl = 'api/heroes';
-
 
   constructor(private messageService: MessageService,
               private http: HttpClient) { }
@@ -32,15 +34,19 @@ export class HeroService {
   }
 
   updateHero(hero: Hero): Observable<any> {
-    const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-    };
-
     return this.http.put(HeroService.heroesUrl, hero, httpOptions)
       .pipe(
         tap(_ => this.log(`updated hero id = ${hero.id}`)),
         catchError(this.handleError<any>(`updateHero id = ${hero.id}`))
       );
+  }
+
+  addHero(hero: Hero): Observable<Hero> {
+    return this.http.post(HeroService.heroesUrl, hero, httpOptions)
+    .pipe(
+      tap((newHero: Hero) => this.log(`added hero ${newHero.name} with id = ${newHero.id}`)),
+      catchError(this.handleError<Hero>(`addHero`))
+    );
   }
 
   private log(message: string): void {
